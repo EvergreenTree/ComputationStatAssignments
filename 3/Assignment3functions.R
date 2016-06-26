@@ -18,11 +18,12 @@ rdnorm <- function(n, mean = 0, sd = 1) round(rnorm(n, mean, sd))
 #             real            x is arbitrary real number
 #  method:    "inverse"       FUN = F^(-1)(x)
 #             "acceptance"    FUN = f
+#  parameter  if known distribution is exponential, this parameter specifies lambda
 #  1.instead of searching, we use optimization method to acquire c this time
 #  2.if we want to use this function frequently on one single distribution, c can be preprocessed 
 rcont <- function(n,FUN,interval = c("01","real_positive","real"),
                   method = c("inverse","acceptance"),
-                  c = NULL)
+                  c = NULL, parameter = NULL)
 {
   if(n < 1 | !(is.function(FUN))) {
     stop("invalid input argument")
@@ -38,11 +39,13 @@ rcont <- function(n,FUN,interval = c("01","real_positive","real"),
                  interval = {if(interval == "01")c(0,1)
                              else if(interval == "real_positive")c(0,100)
                              else if(interval == "real")c(-100,100)})$objective
+  if(is.null(parameter))
+    parameter = 1
   result <- if (method == "acceptance") {
     sapply(1:n,function(y){
       if (interval == "01"){
         repeat{
-          u = runif(1);v = runif(1)
+          u = runif(1);v = runif(1,parameter)
           if(u < (FUN(v)/c)){return(v)}
         }
       }
@@ -98,7 +101,7 @@ rdisc <- function(n, FUN, interval = c("finite","positive","integer"), bound = 0
       else if (interval == "positive"){
         repeat{
           u = runif(1);v = rdexp(1,bound = bound)
-          if(u < (FUN(v)/C/dexp(v))){return(v)} #here is a slight error
+          if(u < (FUN(v)/C/dexp(v))){return(v)} 
         }
       }
       else if (interval == "integer"){

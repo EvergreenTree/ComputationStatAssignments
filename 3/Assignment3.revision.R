@@ -86,28 +86,40 @@ x = rbexp(10000)
 hist(x)
 
 ###################################################
-## 4. simulate x ~ f(x), f is continuous
+## simulate x ~ f(x), f is continuous
 #  interval:  01              x > 0 && x < 1
 #             real_positive   x > 0
 #             real            x is arbitrary real number
 #  method:    "inverse"       FUN = F^(-1)(x)
 #             "acceptance"    FUN = f
-rcont <- function(n,FUN,interval = c("01","real_positive","real"),method = c("inverse","acceptance")){
-  if(n < 0 | !(is.function(FUN))) {
+#  parameter  if known distribution is exponential, this parameter specifies lambda
+#  1.instead of searching, we use optimization method to acquire c this time
+#  2.if we want to use this function frequently on one single distribution, c can be preprocessed 
+rcont <- function(n,FUN,interval = c("01","real_positive","real"),
+                  method = c("inverse","acceptance"),
+                  c = NULL, parameter = NULL)
+{
+  if(n < 1 | !(is.function(FUN))) {
     stop("invalid input argument")
   }
   interval = match.arg(interval)
-  #if necessary we can use more accurate maximization algorithms to calculate c (say gradiant method). here is a simple version.
-  c <- if (interval == "01"){max(FUN(linspace(0,1,100000)))}
-  else if (interval == "real_positive"){max(FUN(rexp(10000000)))}
-  else if (interval == "real"){max(FUN(rnorm(10000000)))}
   method = match.arg(method)
+  if(is.null(c))
+    c = optimize(f = {if(interval == "01")FUN
+      else if(interval == "real_positive")function(x) FUN(x)/dexp(x)
+      else if(interval == "real")function(x) FUN(x)/dnorm(x)
+    }, 
+    maximum = T,
+    interval = {if(interval == "01")c(0,1)
+      else if(interval == "real_positive")c(0,100)
+      else if(interval == "real")c(-100,100)})$objective
+  if(is.null(parameter))
+    parameter = 1
   result <- if (method == "acceptance") {
-    i = rep(0,n)
-    sapply(i,function(y){
+    sapply(1:n,function(y){
       if (interval == "01"){
         repeat{
-          u = runif(1);v = runif(1)
+          u = runif(1);v = runif(1,parameter)
           if(u < (FUN(v)/c)){return(v)}
         }
       }
@@ -128,6 +140,7 @@ rcont <- function(n,FUN,interval = c("01","real_positive","real"),method = c("in
   else if(method == "inverse"){
     sapply(runif(n),FUN)
   }
+  result
 }
 #  in this case f(x) = 30*(x^2-2*x^3+x^4)
 f4 <- function(t){30*(t^2-2*t^3+t^4)}
@@ -137,5 +150,6 @@ hist(x)
 ###################################################
 ##5. in this case f(x) = 0.5*x^2*exp(-x)
 f5 <- function(x){0.5*x^2*exp(-x)}
-x = rcont(3000,f5,"real_positive",method = "acceptance")
+x = rcont(3000,f5,"real_positive",method = "acceptance", parameter = 1)
 hist(x)
+
