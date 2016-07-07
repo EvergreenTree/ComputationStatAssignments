@@ -148,10 +148,10 @@ forward_backward_double_state <-function(x,pi0,P,E,step = length(x),k,l){
 #           E = diag(1,2)             init value
 #   output: parameter, we can obtain argmax_s{P(s|x)} with algorithm above
 hmm_em = function(n, x, d = dim(table(x)), pi0 = rep(0.5,d), P = diag(1,d), E = diag(1,d)){
-  #pi0 = forward_backward(x,pi0,P,E,1)
   L = length(x);P0 = matrix(0,d,d);E0 = matrix(0,d,d)
   for(i in 1:n){
     pi0 = forward_backward(x,pi0,P,E,1)
+    pi0 = pi0/sum(pi0)
     for(k in 1:d){
       for(l in 1:d){
         P0[k,l] = sum(sapply(2:L, forward_backward_double_state,x=x,pi0=pi0,P=P,E=E,k=k,l=l))
@@ -165,7 +165,6 @@ hmm_em = function(n, x, d = dim(table(x)), pi0 = rep(0.5,d), P = diag(1,d), E = 
     }
     P = P0/(t(t(rep(1,d)))%*%apply(P,2,sum)) #normalize P by row
     E = E0/(t(t(rep(1,d)))%*%apply(E,2,sum)) #normalize E by row
-    print(P);print(E)
   }
   list(P = P,E = E)
 }
@@ -173,29 +172,30 @@ hmm_em = function(n, x, d = dim(table(x)), pi0 = rep(0.5,d), P = diag(1,d), E = 
 hmm_em_slow <- function(n, x, d = dim(table(x)), pi0 = rep(0.5,d), P = matrix(0.5,2,2), E = matrix(0.5,2,2)){
   L = length(x)
   for(i in 1:n){
+    list(pi0 = pi0,P = P,E = E)
     pi0 = forward_backward(x,pi0,P,E,1)
-    pi0 = pi0/sum(pi0)
-    P0 = matrix(0,d,d);E0 = matrix(0,d,d)
+    pi0 = pi0 / sum(pi0)
+    P0 = matrix(0,d,d); E0 = matrix(0,d,d)
     for(k in 1:d){
       for(l in 1:d){
         for(j in 1:L){
-          P0[k,l] = P0[k,l]+forward_backward_double_state(x=x,step=j,pi0=pi0,P=P,E=E,k=k,l=l)
+          P0[k,l] = P0[k,l]+forward_backward_double_state(x=x,step=j,pi0=pi0,P=P,E=E,k=k,l=l); t(as.matrix(list(j = j,P = forward_backward_double_state(x=x,step=j,pi0=pi0,P=P,E=E,k=k,l=l)))
           E0[k,l] = E0[k,l]+forward_backward(x=x,pi0=pi0,P=P,E=E,step=j,state = k)*(x[j]==l)
         }
       }
     }
-    print(P0);print(E0)
     P = P0/(t(t(rep(1,d)))%*%apply(P0,2,sum)) #normalize P by row
     E = E0/(t(t(rep(1,d)))%*%apply(E0,2,sum)) #normalize E by row
-    print(P);print(E)
   }
-  list(P = P,E = E)
+  list(pi0 = pi0, P = P, E = E)
 }
 
 dat = read.table("~/Desktop/STAT/hw/2/assign2.csv",sep = ",",header = TRUE)
-dat[1] = NULL;dat = as.matrix(dat);dat[dat == "L"] = 1;dat[dat == "R"] = 2
+dat[1] = NULL; dat = as.matrix(dat);dat[dat == "L"] = 1; dat[dat == "R"] = 2
 dat = matrix(as.numeric(dat),ncol = 2)
 dat[1:5,]
 #hmm_em(3,as.vector(dat))
 #did not converge
-hmm_em_slow(3,as.vector(dat))
+parameter = hmm_em_slow(3,as.vector(dat))
+#optimal hidden-state route
+viterbi(dat,parameter$pi0,parameter$P,parameter$E)
