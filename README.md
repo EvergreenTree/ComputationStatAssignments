@@ -1,4 +1,4 @@
-#Courses
+# Courses
 
 ## Assignments for course "Numerical Methods for Statistical Models" (Fudan Spring 2016)
 1. Sample from GMM, using EM
