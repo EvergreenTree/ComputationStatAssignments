@@ -1,12 +1,15 @@
 # Courses
 
-## Assignments for course "Numerical Methods for Statistical Models" (Fudan Spring 2016)
+## Assignments for course "Numerical Methods for Statistical Models"
+
+Fudan Spring 2016
+
 1. Sample from GMM, using EM
 2. HMM: hidden status or emission state probability, etc
 3. Simulation: sample from a certain singlevariate pdf, including discrete/continuous cases
 4. Multivariate simulation: Gibbs sampling, Metropolis-Hastings Algorithm
 
-## Assignments for Numeric Partial Differential Equations
+## Assignments for "Numeric Partial Differential Equations"
 Fudan Spring 2017
 1. Basics: Interpolation, Newton Integral, Runge Phenomenon, Fix-point, etc
 2. ODE
