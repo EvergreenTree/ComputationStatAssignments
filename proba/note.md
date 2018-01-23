@@ -1,5 +1,5 @@
 $$\newcommand{\dd}{\mathrm d}\newcommand{\N}{\mathbb N} \newcommand{\R}{\mathbb R} \newcommand{\Q}{\mathbb Q} \newcommand{\P}{\mathbb P} \newcommand{E}{\mathbb E} \newcommand{\B}{\mathcal B} \newcommand{\F}{\mathcal F} \newcommand{A}{\mathcal A}$$
-# Probability, Stochastic Processes, Lecture 1
+# Probability, Stochastic Processes
 
 giambattista.giacomin@math.univ-paris-diderot.fr
 
