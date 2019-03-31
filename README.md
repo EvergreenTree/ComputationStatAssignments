@@ -15,8 +15,8 @@ Fudan Spring 2017
 2. ODE
   1. Single-step algorithms: Euler (Explicit, Implicit, Improved, Revised), Runge-Kutta
   2. Multi-step algorithms: Taylor expansion, Adams, Gear Method
-3. Finite Difference Method for Elliptic Functions (Harmonic Functions)
-4. For Development Function: 
+3. Finite Difference Method for Elliptic Equations
+4. Evolution Function: 
    1. heat: Richardson
-   2. convection: Leap-frog, left/right, Lax, Lax-Wendroff, etc
-5. Finite Difference Method
+   2. transport: Leap-frog, left/right, Lax, Lax-Wendroff, etc
+5. Finite Element Method
